@@ -22,6 +22,7 @@ const theme = createTheme({
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
+  const [useEmail, setUseEmail] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(( {data: {session} }) => {
@@ -37,7 +38,7 @@ export default function App() {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {!session ? <SignIn /> : <Home setSession={setSession} />}
+        {!session ? <SignIn useEmail={useEmail} setUseEmail={setUseEmail}/> : <Home useEmail={useEmail} setSession={setSession} />}
       </ThemeProvider>
     </LocalizationProvider>
   );

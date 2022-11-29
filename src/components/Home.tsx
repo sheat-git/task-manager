@@ -11,9 +11,10 @@ import Tasks from './Tasks';
 import { supabase } from '../supabase/client';
 import { Session } from '@supabase/supabase-js';
 import { IconButton, ListItemIcon, ListItemText, MenuList } from '@mui/material';
-import { Delete, Logout, Settings } from '@mui/icons-material';
+import { Delete, Edit, Logout, Settings } from '@mui/icons-material';
 
 type Props = {
+  useEmail: boolean;
   setSession: (session: Session | null) => void;
 };
 
@@ -27,10 +28,11 @@ type Props = {
 //   <Tags />
 // ];
 
-export default function Home(props: Props) {
+export default function Home({useEmail, setSession}: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // const [selectedIndex, setSelectedIndex] = useState(0);
   const [openId, setOpenId] = useState(-1);
+  const accountLabel = useEmail ? 'メールアドレス' : 'アカウント名';
 
   const handleClick = (id: number) => {
     return (event: React.MouseEvent<HTMLElement>) => {
@@ -39,14 +41,14 @@ export default function Home(props: Props) {
     };
   };
 
-  const handleMenuItemClick = (
-    event: React.MouseEvent<HTMLElement>,
-    index: number,
-  ) => {
-    setSelectedIndex(index);
-    setOpenId(-1);
-    setAnchorEl(null);
-  };
+  // const handleMenuItemClick = (
+  //   event: React.MouseEvent<HTMLElement>,
+  //   index: number,
+  // ) => {
+  //   setSelectedIndex(index);
+  //   setOpenId(-1);
+  //   setAnchorEl(null);
+  // };
 
   const handleClose = () => {
     setOpenId(-1);
@@ -56,7 +58,7 @@ export default function Home(props: Props) {
   const handleSignOut = async () => {
     if (await supabase.auth.signOut()) {
       globalThis.localStorage.removeItem(`sb-${new URL(process.env.REACT_APP_SUPABASE_URL!).hostname.split('.')[0]}-auth-token`);
-      props.setSession(null);
+      setSession(null);
     }
   };
 
@@ -68,6 +70,32 @@ export default function Home(props: Props) {
       await handleSignOut();
     }
   };
+
+  const handleChangeAccount = async () => {
+    const account = prompt('新'+accountLabel);
+    if (!account) { return; }
+    if (!account.length) {
+      alert('invalid account name');
+      return;
+    }
+    const {error} = await supabase.functions.invoke('updateUserEmail', {headers: {email: useEmail ? account : account + '@task-manager.sheat-git.github.io'}});
+    if (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    const password = prompt('新パスワード');
+    if (!password) { return; }
+    if (!password.length) {
+      alert('invalid password');
+      return;
+    }
+    const {error} = await supabase.functions.invoke('updateUserPassword', {headers: {password: password}});
+    if (error) {
+      alert(error.message);
+    }
+  }
 
   return (
     <div>
@@ -140,6 +168,22 @@ export default function Home(props: Props) {
                 </ListItemIcon>
                 <ListItemText>
                   サインアウト
+                </ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleChangeAccount}>
+                <ListItemIcon>
+                  <Edit />
+                </ListItemIcon>
+                <ListItemText>
+                  {accountLabel + '変更'}
+                </ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleChangePassword}>
+                <ListItemIcon>
+                  <Edit />
+                </ListItemIcon>
+                <ListItemText>
+                  パスワード変更
                 </ListItemText>
               </MenuItem>
               <MenuItem onClick={handleDeleteAccount}>

@@ -18,9 +18,15 @@ interface SignFormInput {
   password: string;
 }
 
-export default function SignIn() {
+type Props = {
+  useEmail: boolean,
+  setUseEmail: (useEmail: boolean) => void
+};
+
+export default function SignIn(
+  {useEmail, setUseEmail}: Props
+) {
   const [isSignIn, setIsSignIn] = useState(true);
-  const [useEmail, setUseEmail] = useState(true);
   const {register, handleSubmit} = useForm<SignFormInput>();
 
   const handleChangeUseEmail = (event: ChangeEvent<HTMLInputElement>) => {
