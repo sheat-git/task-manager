@@ -87,11 +87,7 @@ export default function Home({useEmail, setSession}: Props) {
   const handleChangePassword = async () => {
     const password = prompt('新パスワード');
     if (!password) { return; }
-    if (!password.length) {
-      alert('invalid password');
-      return;
-    }
-    const {error} = await supabase.functions.invoke('updateUserPassword', {headers: {password: password}});
+    const {error} = await supabase.auth.updateUser({password: password});
     if (error) {
       alert(error.message);
     }

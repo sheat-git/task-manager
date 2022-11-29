@@ -4,7 +4,7 @@ import { supabase } from '../_shared/admin.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, email',
+  'Access-Control-Allow-Headers': '*',
 };
 
 serve(async (req) => {
